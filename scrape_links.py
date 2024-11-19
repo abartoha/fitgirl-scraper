@@ -1,7 +1,7 @@
 import requests
-from lxml import html
+from bs4 import BeautifulSoup
 
-def scrape_links_with_text(url, xpath):
+def scrape_links_with_text(url):
     # Custom headers to mimic a browser
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
@@ -16,17 +16,35 @@ def scrape_links_with_text(url, xpath):
         response = requests.get(url, headers=headers, timeout=timeout_seconds)
         response.raise_for_status()
 
-        # Parse the HTML content
-        tree = html.fromstring(response.content)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        articles = soup.find_all('article')
 
-        # Extract links and their inner text based on XPath
-        elements = tree.xpath(f"{xpath}//li//a")
-        links_with_text = {
-            (element.text_content() or "No text").strip(): element.get("href")
-            for element in elements
-        }
+        for article in articles:
+            # Extract the title
+            title = article.find('h1', class_='entry-title').get_text(strip=True)
 
-        return links_with_text
+            # Extract the publication date
+            date = article.find('time', class_='entry-date')['datetime']
+
+            # Extract the categories
+            categories = [a.get_text(strip=True) for a in article.select('span.cat-links a')]
+
+            # Extract download links
+            download_links = [a['href'] for a in article.select('ul li a') if 'href' in a.attrs]
+
+            # Extract screenshots
+            screenshots = [img['src'] for img in article.select('h3 + p img')]
+
+            # Repacks Features
+            features = [li.get_text(strip=True) for li in article.select('h3 + ul li')]
+
+            print("Title:", title)
+            print("Date Published:", date)
+            print("Categories:", len(categories))
+            print("Download Links:", len(download_links))
+            print("Screenshots:", len(screenshots))
+            print("Features:", len(features))
+        return title, [date, categories, download_links, screenshots, features]
 
     except requests.exceptions.Timeout:
         print(f"Request timed out after {timeout_seconds} seconds.")
@@ -37,10 +55,12 @@ def scrape_links_with_text(url, xpath):
         return {}
 
 # Example usage
-url = "https://fitgirl-repacks.site/"
-xpath = '//*[@id="post-71473"]/div[2]/ul[28]'
-links_with_text = scrape_links_with_text(url, xpath)
 
-print(f"\nFound {len(links_with_text)} links with inner text:")
-for text, link in links_with_text.items():
-    print(f"Text: {text}\nLink: {link}\n")
+if __name__ == "__main__":
+    data = {}
+    url = lambda x: f"https://fitgirl-repacks.site/page/{x}"
+    
+    for i in range(0,535):
+        k, v = scrape_links_with_text(url(i+1))
+        data[k] = v
+
