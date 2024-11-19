@@ -4,9 +4,11 @@ from lxml import html
 def scrape_links_with_text(url, xpath):
     # Custom headers to mimic a browser
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+        "Referer": "https://www.google.com/",
+        "Accept-Language": "en-US,en;q=0.9"
     }
-    timeout_seconds = 10  # Define timeout in seconds
+    response = requests.get(url, headers=headers, timeout=10)
 
     try:
         # Send HTTP GET request with timeout
