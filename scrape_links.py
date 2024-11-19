@@ -8,7 +8,8 @@ def scrape_links_with_text(url, xpath):
         "Referer": "https://www.google.com/",
         "Accept-Language": "en-US,en;q=0.9"
     }
-    response = requests.get(url, headers=headers, timeout=10)
+    
+    timeout_seconds = 10  # Define timeout in seconds
 
     try:
         # Send HTTP GET request with timeout
