@@ -6,10 +6,11 @@ def scrape_links_with_text(url, xpath):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
     }
+    timeout_seconds = 10  # Define timeout in seconds
 
     try:
-        # Send HTTP GET request
-        response = requests.get(url, headers=headers)
+        # Send HTTP GET request with timeout
+        response = requests.get(url, headers=headers, timeout=timeout_seconds)
         response.raise_for_status()
 
         # Parse the HTML content
@@ -24,18 +25,19 @@ def scrape_links_with_text(url, xpath):
 
         return links_with_text
 
+    except requests.exceptions.Timeout:
+        print(f"Request timed out after {timeout_seconds} seconds.")
+        return {}
+
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
         return {}
 
-# URL and XPath
+# Example usage
 url = "https://igg-games.com/list-9163969989-game.html"
 xpath = '//*[@id="post-71473"]/div[2]/ul[28]'
-
-# Scrape the links
 links_with_text = scrape_links_with_text(url, xpath)
 
-# Display the results
 print(f"\nFound {len(links_with_text)} links with inner text:")
 for text, link in links_with_text.items():
     print(f"Text: {text}\nLink: {link}\n")
