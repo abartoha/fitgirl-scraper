@@ -20,7 +20,7 @@ def scrape_links_with_text(url, xpath):
         tree = html.fromstring(response.content)
 
         # Extract links and their inner text based on XPath
-        elements = tree.xpath(f"{xpath}//a")
+        elements = tree.xpath(f"{xpath}//li//a")
         links_with_text = {
             (element.text_content() or "No text").strip(): element.get("href")
             for element in elements
@@ -37,7 +37,7 @@ def scrape_links_with_text(url, xpath):
         return {}
 
 # Example usage
-url = "https://igg-games.com/list-9163969989-game.html"
+url = "https://fitgirl-repacks.site/"
 xpath = '//*[@id="post-71473"]/div[2]/ul[28]'
 links_with_text = scrape_links_with_text(url, xpath)
 
